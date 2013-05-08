@@ -48,11 +48,13 @@ out some of the books in the references section below for detailed and interesti
                if c == key[1]:
                    decodedKey[key[0]] = key[1].upper()
                else:
+                   temp = dict(zip(decodedKey.values(),decodedKey))
                    decodedKey[c] = c.upper()
         tripplekeys = {}
         for s in commonPairs:
            searchDictionary(decodedText, s)
         print(decodedKey)
+        
 
 
 
