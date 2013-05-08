@@ -37,21 +37,24 @@ out some of the books in the references section below for detailed and interesti
             print("(%s: %s), " % (decodedKey[k], k), end="")
         print('')
         
-        decText = list(encoded)
-        for i in range(len(decText)):
-            if decText[i] in decodedKey:
-                decText[i] = decodedKey[decText[i]]
-                
-        decodedText = ''.join(decText)
+        decodedText = decodeText(encoded, decodedKey)
         print(decodedText)
         
+        tripplekeys = {}
         for s in commonTripples:
-            pattern = " (" + s[0:2] + ")" + "([a-z]) | (" + s[0] + "([a-z])"+ s[2] + ") | (" + "([a-z])"+ s[1:3] + ") "
-            print(pattern)
-            m = re.search(pattern, decodedText)
-            if m:
-                print(m.group(0))
-            
+           key = searchDictionary(decodedText, s)
+           print(key)
+           for c in [c for c in list(s) if key]:
+               if c == key[1]:
+                   decodedKey[key[0]] = key[1].upper()
+               else:
+                   decodedKey[c] = c.upper()
+        tripplekeys = {}
+        for s in commonPairs:
+           searchDictionary(decodedText, s)
+        print(decodedKey)
+
+
 
 from collections import Counter
 import random
@@ -91,6 +94,27 @@ def encode(text):
             t[i] = key[t[i]];
             
     return (key, ''.join(t));
+
+def decodeText(text, encode):
+    decText = list(text)
+    for i in range(len(decText)):
+        if decText[i] in encode:
+            decText[i] = encode[decText[i]]
+    
+    return ''.join(decText)
+
+def searchDictionary(text, word):
+    pattern = ""
+    for i in range(len(word) - 1):
+        pattern += ""+word[0:i]+"([a-z])"+word[i+1:len(word)]+"|"
+    pattern += ""+word[0:len(word) - 1]+"([a-z])"+word[len(word):len(word)]+""
+    
+    m = re.search(pattern, text)
+    if not m:
+        return
+    for i in [i for i in range(len(word)) if i >= 1 and m.group(i)]:
+        return (m.group(i), word[i-1])
+    return
 
 if __name__ == '__main__':
     instance = Main() 
