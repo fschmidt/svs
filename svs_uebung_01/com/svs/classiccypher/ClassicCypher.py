@@ -22,27 +22,27 @@ in current use and is not a treatise of the whole field. No mention is made here
 difference between a substitution and transposition cipher, cryptanalysis, or other history. Interested readers should check 
 out some of the books in the references section below for detailed and interesting! background information.'''
 
-        print(crypto.lower())
+        #print(crypto.lower())
         key, encoded = encode(crypto.lower())
-        print(encoded)
-        print("Real key:")
-        printKey(key)
-        print("Calculated key: ")
+        #print(encoded)
+        #print("Real key:")
+        #printKey(key)
+        #print("Calculated key: ")
         decodedKey = decode(encoded)
-        print(decodedKey)
+        #print(decodedKey)
         decodedText = decodeText(encoded, decodedKey)
-        print(decodedText)
+        #print(decodedText)
 
         for s in commonTripples:
             key = searchDictionary(decodedText, s)
-            print(key)
+            #print(key)
             if not key:
                 continue
             temp = {v: k for k, v in decodedKey.items()}
             for c in [c for c in list(s) if c in temp]:
-                if c == key[1] and not str.isupper(decodedKey[key[0]]):
-                    decodedKey[key[0]] = key[1].upper()
-                else:
+                if c == key[1] and not str.isupper(decodedKey[key[0]]) and c.upper() not in temp.keys():
+                    decodedKey[temp[key[0]]] = key[1].upper()
+                elif c.upper() not in temp:
                     decodedKey[temp[c]] = c.upper()
 
         print(decodedKey)
@@ -64,8 +64,8 @@ commonRepetitions = ['ss', 'ee', 'tt', 'ff', 'll', 'mm', 'oo']
 
 def decode(text):
     charCount = Counter(text)
-    print("Letter Freq in encoded text: ")
-    print(charCount)
+    #print("Letter Freq in encoded text: ")
+    #print(charCount)
     # we assume that there are only lower case letters encoded in the sequence
     for x in [x for x in charCount.keys() if not x in letterFrequency]:
         charCount.pop(x)
