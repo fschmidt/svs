@@ -7,7 +7,7 @@ import re
 class Main(object):
     def __init__(self):
         crypto = '''
--the- does increased security provide comfort to paranoid people? Or does security provide some very basic protections 
+the does increased security provide comfort to paranoid people? Or does security provide some very basic protections 
 that we are naive to believe that we don't need? During this time when the Internet provides essential communication between 
 tens of millions of people and is being increasingly used as a tool for commerce, security becomes a tremendously important 
 issue to deal with. There are many aspects to security and many applications, ranging from secure commerce and payments to 
@@ -22,7 +22,7 @@ in current use and is not a treatise of the whole field. No mention is made here
 difference between a substitution and transposition cipher, cryptanalysis, or other history. Interested readers should check 
 out some of the books in the references section below for detailed and interesting! background information.'''
 
-        #print(crypto.lower())
+        print(crypto.lower())
         key, encoded = encode(crypto.lower())
         #print(encoded)
         #print("Real key:")
@@ -45,7 +45,7 @@ out some of the books in the references section below for detailed and interesti
                 elif c.upper() not in temp:
                     decodedKey[temp[c]] = c.upper()
 
-        print(decodedKey)
+        print("\n",decodedKey)
 
         print(decodeText(encoded, decodedKey))
 
