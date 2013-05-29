@@ -7,7 +7,7 @@ import re
 class Main(object):
     def __init__(self):
         crypto = '''
--the- does increased security provide comfort to paranoid people? Or does security provide some very basic protections 
+the does increased security provide comfort to paranoid people? Or does security provide some very basic protections 
 that we are naive to believe that we don't need? During this time when the Internet provides essential communication between 
 tens of millions of people and is being increasingly used as a tool for commerce, security becomes a tremendously important 
 issue to deal with. There are many aspects to security and many applications, ranging from secure commerce and payments to 
@@ -24,28 +24,28 @@ out some of the books in the references section below for detailed and interesti
 
         print(crypto.lower())
         key, encoded = encode(crypto.lower())
-        print(encoded)
-        print("Real key:")
-        printKey(key)
-        print("Calculated key: ")
+        #print(encoded)
+        #print("Real key:")
+        #printKey(key)
+        #print("Calculated key: ")
         decodedKey = decode(encoded)
-        print(decodedKey)
+        #print(decodedKey)
         decodedText = decodeText(encoded, decodedKey)
-        print(decodedText)
+        #print(decodedText)
 
         for s in commonTripples:
             key = searchDictionary(decodedText, s)
-            print(key)
+            #print(key)
             if not key:
                 continue
             temp = {v: k for k, v in decodedKey.items()}
             for c in [c for c in list(s) if c in temp]:
-                if c == key[1] and not str.isupper(decodedKey[key[0]]):
-                    decodedKey[key[0]] = key[1].upper()
-                else:
+                if c == key[1] and not str.isupper(decodedKey[key[0]]) and c.upper() not in temp.keys():
+                    decodedKey[temp[key[0]]] = key[1].upper()
+                elif c.upper() not in temp:
                     decodedKey[temp[c]] = c.upper()
 
-        print(decodedKey)
+        print("\n",decodedKey)
 
         print(decodeText(encoded, decodedKey))
 
@@ -64,8 +64,8 @@ commonRepetitions = ['ss', 'ee', 'tt', 'ff', 'll', 'mm', 'oo']
 
 def decode(text):
     charCount = Counter(text)
-    print("Letter Freq in encoded text: ")
-    print(charCount)
+    #print("Letter Freq in encoded text: ")
+    #print(charCount)
     # we assume that there are only lower case letters encoded in the sequence
     for x in [x for x in charCount.keys() if not x in letterFrequency]:
         charCount.pop(x)
