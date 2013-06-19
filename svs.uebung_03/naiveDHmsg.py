@@ -1,4 +1,5 @@
 import smtplib
+import hashlib
 from optparse import OptionParser
 from email.mime.text import MIMEText
 '''
@@ -13,7 +14,6 @@ BASE = 777
 
 def sendMail(content, sender, recepients, smtp):
     #   Create the enclosing (outer) message
-    print(content)
     outer = MIMEText(content.encode('base64'))
     outer['Subject'] = 'Subject'
     outer['To'] = ', '.join(recepients)
@@ -168,8 +168,9 @@ if __name__ == "__main__":
     if not options.destination_port:
         raise Error("Missing parameter 'destination_port'")
 
-    A = BASE ** int(options.secret) % PRIME
-    sendMail('PUB_KEY:' + str(A), options.sender, [options.recipient], 'localhost:' + str(options.destination_port))
-
+    key = hashlib.sha256(options.secret).hexdigest()[:16]
+    var = raw_input("Enter something: ")
+    print "sending .. ", var
+    sendMail(crypt(key, var), options.sender, [options.recipient], 'localhost:' + str(options.destination_port))
     print("> finished")
 

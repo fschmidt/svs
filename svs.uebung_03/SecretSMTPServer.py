@@ -1,28 +1,43 @@
-import smtplib
+from aifc import Error
 from optparse import OptionParser
-from email.mime.text import MIMEText
+import asyncore
+import hashlib
+import smtpd
+import struct
 '''
 Created on 19.06.2013
 
 @author: Frank Schmidt und Marcus Fabarius
 '''
-from aifc import Error
-
 PRIME = 977
 BASE = 777
 
-def sendMail(content, sender, recepients, smtp):
-    #   Create the enclosing (outer) message
-    print(content)
-    outer = MIMEText(content.encode('base64'))
-    outer['Subject'] = 'Subject'
-    outer['To'] = ', '.join(recepients)
-    outer['From'] = sender
-    server = smtplib.SMTP(smtp)
+class SecretSMTPServer(smtpd.SMTPServer):
 
-    #   Encode the key using Base64
-    server.sendmail(sender, recepients, outer.as_string())
-    server.quit()
+    def __init__(self, localaddr, remoteaddr, secret):
+        print "Running fake smtp server"
+        smtpd.SMTPServer.__init__(self, localaddr, remoteaddr)
+        self.secret = secret
+
+    def process_message(self, peer, mailfrom, rcpttos, data):
+        print '####################################'
+        print '##########INCOMING MESSAGE##########'
+        print '####################################'
+        print 'Receiving message from:', peer
+        print 'Message addressed from:', mailfrom
+        print 'Message addressed to  :', rcpttos
+        print 'Message length        :', len(data)
+        print '####################################'
+        contents = data.split('\n')
+        msg = contents[len(contents) - 1].decode('base64')
+        if msg.startswith('PUB_KEY:'):
+            B = int(msg[len('PUB_KEY:'):])
+            a = int(self.secret)
+            s = B ** a % PRIME
+            print('SECRET:' + str(s))
+            self.key = hashlib.sha256(str(s)).hexdigest()[:16]
+        else:
+            print(crypt(self.key, msg))
 
 """ 
 XTEA Block Encryption Algorithm
@@ -63,7 +78,6 @@ exchanged securely)
 
 """
 
-import struct
 
 def crypt(key, data, iv = '\00\00\00\00\00\00\00\00', n = 32):
     """
@@ -153,23 +167,17 @@ if __name__ == "__main__":
     print("> started")
 
     parser = OptionParser()
-    parser.add_option("-s", dest = "secret", default = False)
-    parser.add_option("--sender", dest = "sender", default = False)
-    parser.add_option("--recipient", dest = "recipient", default = False)
-    parser.add_option("--destination_port", dest = "destination_port", default = False)
+    parser.add_option("-p", dest = "port", default = False)
+    parser.add_option("--secret", dest = "secret", default = False)
     (options, args) = parser.parse_args()
 
-    if not options.secret:
-        raise Error("Missing parameter 'secret'")
-    if not options.sender:
-        raise Error("Missing parameter 'sender'")
-    if not options.recipient:
-        raise Error("Missing parameter 'recipient'")
-    if not options.destination_port:
-        raise Error("Missing parameter 'destination_port'")
-
-    A = BASE ** int(options.secret) % PRIME
-    sendMail('PUB_KEY:' + str(A), options.sender, [options.recipient], 'localhost:' + str(options.destination_port))
+    #   start the server
+    server = SecretSMTPServer(('127.0.0.1', int(options.port)), None, options.secret)
+    try:
+        asyncore.loop()
+    except KeyboardInterrupt:
+        server.close()
 
     print("> finished")
+
 
